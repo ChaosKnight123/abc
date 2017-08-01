@@ -1,101 +1,186 @@
-
-<!DOCTYPE html>
 <html>
 <head>
-	<title>Trans&diams;cube</title>
-	<link href="css/main.css" rel="stylesheet" type="text/css">
 </head>
 <body>
-	<div id="container">
-		<canvas id="canvas"></canvas>
-		<div id="ui">
-			<div id="levelselect">
-				<div class="title">
-					Level select
-				</div>
-				<div id="levels"></div>
-				<div id="menu">
-					<div class="menu">
-						Title
-					</div>
-					<div class="restart">
-						Restart
-					</div>
-					<div class="play">
-						Resume
-					</div>
-				</div>
-			</div>
-			<div id="intro">
-				<div id="title">
-					Trans<span>cube</span>
-				</div>
-				<div id="slug">
-					a game by <a href="https://github.com/jeroenverfallie">jerev</a>
-				</div>
-				<div id="play">
-					Play
-				</div>
-				<div id="github">
-					Github
-				</div>
-			</div>
-			<div id="end">
-				<div id="stats">
-					<div>
-						<span id="time"></span><span class="right">Seconds</span>
-					</div>
-					<div>
-						<span id="restarts"></span><span class="right">Restarts</span>
-					</div>
-					<div>
-						<span id="transforms"></span><span class="right">Transforms</span>
-					</div>
-					<div>
-						<span id="deaths"></span><span class="right">"Deaths"</span>
-					</div>
-				</div>
-				<div id="btns">
-					<div class="menu">
-						Menu
-					</div>
-					<div class="retry">
-						Restart
-					</div>
-					<div class="next">
-						&gt;&gt; Next level (N) &gt;&gt;
-					</div>
-				</div>
-			</div>
-		</div>
-		<div class="message top" id="leveltitle">
-			Loading the loader!
-		</div>
-		<div id="icons-top">
-			<div class="left">
-				<div class="menu"></div>
-				<div class="pause"></div>
-				<div class="restart"></div>
-			</div>
-			<div class="right">
-				<div class="music"></div>
-				<div class="mute"></div>
-			</div>
-		</div>
-		<div id="footer">
-			<div id="morphs">
-				<span>Spawns a movable block you can stand on.</span>
-				<div></div>
-			</div>
-		</div>
-	</div>
-	<script src="js/soundmanager2-nodebug-jsmin.js" type="text/javascript">
-	</script>
-	<script src="js/jquery-1.10.1.min.js" type="text/javascript">
-	</script>
-	<script src="js/jquery.color-2.1.2.min.js" type="text/javascript">
-	</script>
-	<script src="js/main.min.js" type="text/javascript">
-	</script>
+<canvas id="myCanvas" width="500px" height="500px"></canvas>
+
+<script type="text/javascript">
+var canvas=document.getElementById('myCanvas');
+var ctx=canvas.getContext('2d');
+var score =0;
+var lives =3;
+var brickWidth = 75;
+var brickHeight = 20;
+ballX = 220;
+ballY = 480;
+ballSpeedX = 15;
+ballSpeedY = 8;
+var paddle = 200;
+var rightPress = false;
+var leftPress = false;
+var brick = [];
+var c;
+document.addEventListener("keydown", keyDownHandler, false);
+document.addEventListener("keyup", keyUpHandler, false);
+function keyDownHandler(e)
+{
+	if (e.keyCode ==39)
+	{
+		rightPress = true; 
+	}
+	else if (e.keyCode ==37)
+	{
+		leftPress = true; 
+	}
+}
+function keyUpHandler(e)
+{
+	if (e.keyCode ==39)
+	{
+		rightPress = false; 
+	}
+	else if (e.keyCode ==37)
+	{
+		leftPress = false; 
+	}
+}
+
+	for (c=0 ; c < 5; c++)
+	{
+		brick[c] = [];
+	
+	for (r=0; r< 3; r++)
+	{
+		brick[c][r] = {x:0 , y:0 , status:1};
+	}
+	}
+	
+function ballReset()
+{
+	ballX = 220;
+	ballY = 480;
+	ballSpeedY = -ballSpeedY;
+}
+
+function movement()
+{
+	ballX = ballX + ballSpeedX;
+	ballY = ballY + ballSpeedY;
+if (rightPress && paddle+100<canvas.width)
+paddle+=8;
+else if (leftPress && paddle >0)
+{
+	paddle-=8;
+}
+ if(ballX < 10) {
+ ballSpeedX = -ballSpeedX;
+ }
+ 
+ 
+ if(ballX > canvas.width-10) {
+ 
+ ballSpeedX = -ballSpeedX; 
+ }
+
+ if(ballY < 10) {
+  ballSpeedY = -ballSpeedY;
+ }
+ if(ballY > canvas.height-20) {
+	if (ballX > paddle && ballX < paddle+100)
+	{
+	var deltaX = ballX-(paddle+50);
+ ballSpeedX = deltaX * 0.35;
+  ballSpeedY = -ballSpeedY; 
+  }
+  else 
+  {
+  lives--;
+  ballReset();
+  paddle=200;
+  
+  if (lives==0)
+	{
+		alert('You lose. Noob');
+		document.location.reload();
+	}
+ } 
+ }
+}
+
+function collision()
+{
+	for (c=0 ; c < 5; c++){
+	for (r=0 ; r < 3; r++){
+	
+	var b = brick[c][r];
+	if (b.status==1)
+	{
+	if (ballX > b.x && ballX < b.x+100 && ballY > b.y && ballY < b.y+10)
+	{
+	score++;
+	ballSpeedY = -ballSpeedY;
+	b.status=0;
+	
+	if (score==15)
+	{
+		alert('You win. Now delete this game. It is daed gaem');
+		document.location.reload();
+	}
+	}
+	}
+}
+}
+
+}
+function drawBrick()
+{
+	for (c=0 ; c < 5; c++){
+	for (r=0 ; r < 3; r++)	
+	{
+	if (brick[c][r].status==1)
+	{
+		var brickX = (c*(brickWidth+10)+30);
+		var brickY = (r*(brickHeight+10)+30);
+		brick[c][r].x =brickX;
+		brick[c][r].y =brickY;
+		ctx.beginPath();
+		ctx.fillRect(brickX,brickY,brickWidth,brickHeight);
+		ctx.fillStyle = "white";
+		ctx.closePath();
+	}
+	}
+}
+}
+
+function drawBall()
+{
+	ctx.beginPath();
+	ctx.arc(ballX,ballY,10,0,Math.PI*2);
+	ctx.fillStyle="red";
+	ctx.fill();
+	ctx.closePath();
+}
+function drawPaddle()
+{
+	ctx.beginPath();
+	ctx.fillStyle='rgba(25,255,255,0.75)';
+	ctx.fillRect(paddle,490,100,10);
+	
+}
+window.onload=setInterval(function drawAll()
+{
+ctx.fillStyle="black";
+ctx.fillRect(0,0,canvas.width,canvas.height);
+ctx.fillStyle='white';
+ctx.fillText('score:'+score,20,20);
+ctx.fillText('lives:'+lives,60,20);
+drawBrick();
+drawBall();
+drawPaddle();
+movement();
+collision();
+},30);
+
+</script>
 </body>
 </html>
